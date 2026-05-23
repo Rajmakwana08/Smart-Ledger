@@ -1,0 +1,133 @@
+import {
+  UtensilsCrossed,
+  ShoppingBag,
+  Zap,
+  Briefcase,
+  Plane,
+  MoreHorizontal,
+  TrendingUp,
+  Home,
+  Car,
+  Heart,
+  GraduationCap,
+  Gamepad2,
+} from 'lucide-react'
+
+export const CATEGORIES = [
+  {
+    id: 'food',
+    label: 'Food & Dining',
+    icon: UtensilsCrossed,
+    color: '#f97316',
+    bg: 'bg-orange-100 dark:bg-orange-900/30',
+    text: 'text-orange-600 dark:text-orange-400',
+    type: 'expense',
+  },
+  {
+    id: 'shopping',
+    label: 'Shopping',
+    icon: ShoppingBag,
+    color: '#ec4899',
+    bg: 'bg-pink-100 dark:bg-pink-900/30',
+    text: 'text-pink-600 dark:text-pink-400',
+    type: 'expense',
+  },
+  {
+    id: 'bills',
+    label: 'Bills & Utilities',
+    icon: Zap,
+    color: '#eab308',
+    bg: 'bg-yellow-100 dark:bg-yellow-900/30',
+    text: 'text-yellow-600 dark:text-yellow-400',
+    type: 'expense',
+  },
+  {
+    id: 'salary',
+    label: 'Salary',
+    icon: Briefcase,
+    color: '#10b981',
+    bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+    text: 'text-emerald-600 dark:text-emerald-400',
+    type: 'income',
+  },
+  {
+    id: 'travel',
+    label: 'Travel',
+    icon: Plane,
+    color: '#6366f1',
+    bg: 'bg-indigo-100 dark:bg-indigo-900/30',
+    text: 'text-indigo-600 dark:text-indigo-400',
+    type: 'both',
+  },
+  {
+    id: 'housing',
+    label: 'Housing',
+    icon: Home,
+    color: '#8b5cf6',
+    bg: 'bg-violet-100 dark:bg-violet-900/30',
+    text: 'text-violet-600 dark:text-violet-400',
+    type: 'expense',
+  },
+  {
+    id: 'transport',
+    label: 'Transport',
+    icon: Car,
+    color: '#06b6d4',
+    bg: 'bg-cyan-100 dark:bg-cyan-900/30',
+    text: 'text-cyan-600 dark:text-cyan-400',
+    type: 'expense',
+  },
+  {
+    id: 'health',
+    label: 'Health',
+    icon: Heart,
+    color: '#ef4444',
+    bg: 'bg-red-100 dark:bg-red-900/30',
+    text: 'text-red-600 dark:text-red-400',
+    type: 'expense',
+  },
+  {
+    id: 'education',
+    label: 'Education',
+    icon: GraduationCap,
+    color: '#3b82f6',
+    bg: 'bg-blue-100 dark:bg-blue-900/30',
+    text: 'text-blue-600 dark:text-blue-400',
+    type: 'expense',
+  },
+  {
+    id: 'entertainment',
+    label: 'Entertainment',
+    icon: Gamepad2,
+    color: '#a855f7',
+    bg: 'bg-purple-100 dark:bg-purple-900/30',
+    text: 'text-purple-600 dark:text-purple-400',
+    type: 'expense',
+  },
+  {
+    id: 'investment',
+    label: 'Investment',
+    icon: TrendingUp,
+    color: '#10b981',
+    bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+    text: 'text-emerald-600 dark:text-emerald-400',
+    type: 'income',
+  },
+  {
+    id: 'other',
+    label: 'Other',
+    icon: MoreHorizontal,
+    color: '#6b7280',
+    bg: 'bg-gray-100 dark:bg-gray-900/30',
+    text: 'text-gray-600 dark:text-gray-400',
+    type: 'both',
+  },
+]
+
+export function getCategoryById(id) {
+  return CATEGORIES.find((c) => c.id === id) || CATEGORIES[CATEGORIES.length - 1]
+}
+
+export function getCategoriesForType(type) {
+  return CATEGORIES.filter((c) => c.type === type || c.type === 'both')
+}
