@@ -1,14 +1,22 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Pencil, Trash2, MoreVertical } from 'lucide-react'
+import {
+  Pencil,
+  Trash2,
+  MoreVertical,
+  Store,
+} from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,12 +27,32 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { getCategoryById } from '@/utils/categories'
 
-export default function TransactionRow({ transaction, onEdit, onDelete, index }) {
+export default function TransactionRow({
+  transaction,
+  onEdit,
+  onDelete,
+  index,
+}) {
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const category = getCategoryById(transaction.category)
+
+  // Get category
+  let category = getCategoryById(transaction.category)
+
+  // Add custom SHOP category support
+  if (transaction.category === 'shop') {
+    category = {
+      id: 'shop',
+      label: 'Shop',
+      icon: Store,
+      bg: 'bg-violet-100 dark:bg-violet-900/30',
+      text: 'text-violet-600 dark:text-violet-400',
+    }
+  }
+
   const Icon = category.icon
 
   return (
@@ -35,14 +63,22 @@ export default function TransactionRow({ transaction, onEdit, onDelete, index })
         transition={{ delay: index * 0.03 }}
         className="border-b last:border-0 hover:bg-muted/30 transition-colors group"
       >
+
         {/* Category icon + title */}
         <td className="py-3 px-4">
           <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${category.bg}`}>
+
+            <div
+              className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${category.bg}`}
+            >
               <Icon className={`h-4 w-4 ${category.text}`} />
             </div>
+
             <div>
-              <p className="font-medium text-sm">{transaction.title}</p>
+              <p className="font-medium text-sm">
+                {transaction.title}
+              </p>
+
               {transaction.notes && (
                 <p className="text-xs text-muted-foreground truncate max-w-[200px]">
                   {transaction.notes}
@@ -54,7 +90,9 @@ export default function TransactionRow({ transaction, onEdit, onDelete, index })
 
         {/* Category */}
         <td className="py-3 px-4 hidden md:table-cell">
-          <span className={`text-xs font-medium px-2 py-1 rounded-full ${category.bg} ${category.text}`}>
+          <span
+            className={`text-xs font-medium px-2 py-1 rounded-full ${category.bg} ${category.text}`}
+          >
             {category.label}
           </span>
         </td>
@@ -66,7 +104,13 @@ export default function TransactionRow({ transaction, onEdit, onDelete, index })
 
         {/* Type */}
         <td className="py-3 px-4 hidden lg:table-cell">
-          <Badge variant={transaction.type === 'income' ? 'success' : 'danger'}>
+          <Badge
+            variant={
+              transaction.type === 'income'
+                ? 'success'
+                : 'danger'
+            }
+          >
             {transaction.type}
           </Badge>
         </td>
@@ -88,6 +132,7 @@ export default function TransactionRow({ transaction, onEdit, onDelete, index })
         {/* Actions */}
         <td className="py-3 px-4">
           <DropdownMenu>
+
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
@@ -97,11 +142,16 @@ export default function TransactionRow({ transaction, onEdit, onDelete, index })
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(transaction)}>
+
+              <DropdownMenuItem
+                onClick={() => onEdit(transaction)}
+              >
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit
               </DropdownMenuItem>
+
               <DropdownMenuItem
                 onClick={() => setDeleteOpen(true)}
                 className="text-destructive focus:text-destructive"
@@ -109,22 +159,37 @@ export default function TransactionRow({ transaction, onEdit, onDelete, index })
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete
               </DropdownMenuItem>
+
             </DropdownMenuContent>
           </DropdownMenu>
         </td>
       </motion.tr>
 
-      {/* Delete confirmation */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+      {/* Delete Confirmation */}
+      <AlertDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+      >
         <AlertDialogContent>
+
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+            <AlertDialogTitle>
+              Delete Transaction
+            </AlertDialogTitle>
+
             <AlertDialogDescription>
-              Are you sure you want to delete "{transaction.title}"? This action cannot be undone.
+              Are you sure you want to delete "
+              {transaction.title}"?
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
+
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+            <AlertDialogCancel>
+              Cancel
+            </AlertDialogCancel>
+
             <AlertDialogAction
               onClick={() => {
                 onDelete(transaction.id)
@@ -134,6 +199,7 @@ export default function TransactionRow({ transaction, onEdit, onDelete, index })
             >
               Delete
             </AlertDialogAction>
+
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

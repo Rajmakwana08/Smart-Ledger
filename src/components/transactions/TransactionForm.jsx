@@ -1,10 +1,17 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { PlusCircle, TrendingUp, TrendingDown } from 'lucide-react'
+import {
+  PlusCircle,
+  TrendingUp,
+  TrendingDown,
+  Store,
+} from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+
 import {
   Select,
   SelectContent,
@@ -12,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+
 import {
   Dialog,
   DialogContent,
@@ -19,6 +27,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
+
 import { cn, formatDateInput } from '@/lib/utils'
 import { CATEGORIES, getCategoriesForType } from '@/utils/categories'
 
@@ -31,7 +40,12 @@ const defaultForm = {
   notes: '',
 }
 
-export default function TransactionForm({ open, onClose, onSubmit, initialData }) {
+export default function TransactionForm({
+  open,
+  onClose,
+  onSubmit,
+  initialData,
+}) {
   const [form, setForm] = useState(initialData || defaultForm)
   const [loading, setLoading] = useState(false)
 
@@ -40,34 +54,55 @@ export default function TransactionForm({ open, onClose, onSubmit, initialData }
   function handleChange(field, value) {
     setForm((prev) => {
       const updated = { ...prev, [field]: value }
+
       // Reset category when type changes
       if (field === 'type') {
         updated.category = ''
       }
+
       return updated
     })
   }
 
   async function handleSubmit(e) {
     e.preventDefault()
+
     if (!form.title || !form.amount || !form.category || !form.date) return
 
     setLoading(true)
+
     try {
       await onSubmit({
         ...form,
         amount: parseFloat(form.amount),
       })
+
       if (!isEdit) {
         setForm(defaultForm)
       }
+
       onClose()
     } finally {
       setLoading(false)
     }
   }
 
-  const categories = getCategoriesForType(form.type)
+  // Get categories based on type
+  let categories = getCategoriesForType(form.type)
+
+  // Add SHOP category inside income
+  if (form.type === 'income') {
+    categories = [
+      
+      {
+        id: 'shop',
+        label: 'Shop',
+        icon: Store,
+        color: '#8b5cf6',
+      },
+      ...categories,
+    ]
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -79,7 +114,8 @@ export default function TransactionForm({ open, onClose, onSubmit, initialData }
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Type toggle */}
+
+          {/* Type Toggle */}
           <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl">
             {['expense', 'income'].map((type) => (
               <button
@@ -100,6 +136,7 @@ export default function TransactionForm({ open, onClose, onSubmit, initialData }
                 ) : (
                   <TrendingUp className="h-4 w-4" />
                 )}
+
                 {type.charAt(0).toUpperCase() + type.slice(1)}
               </button>
             ))}
@@ -108,6 +145,7 @@ export default function TransactionForm({ open, onClose, onSubmit, initialData }
           {/* Title */}
           <div className="space-y-1.5">
             <Label htmlFor="title">Title</Label>
+
             <Input
               id="title"
               placeholder="e.g. Grocery shopping"
@@ -120,10 +158,12 @@ export default function TransactionForm({ open, onClose, onSubmit, initialData }
           {/* Amount */}
           <div className="space-y-1.5">
             <Label htmlFor="amount">Amount</Label>
+
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
-                $
+                ₹
               </span>
+
               <Input
                 id="amount"
                 type="number"
@@ -141,6 +181,7 @@ export default function TransactionForm({ open, onClose, onSubmit, initialData }
           {/* Category */}
           <div className="space-y-1.5">
             <Label>Category</Label>
+
             <Select
               value={form.category}
               onValueChange={(val) => handleChange('category', val)}
@@ -149,11 +190,16 @@ export default function TransactionForm({ open, onClose, onSubmit, initialData }
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
+
               <SelectContent>
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
                     <div className="flex items-center gap-2">
-                      <cat.icon className="h-4 w-4" style={{ color: cat.color }} />
+                      <cat.icon
+                        className="h-4 w-4"
+                        style={{ color: cat.color }}
+                      />
+
                       {cat.label}
                     </div>
                   </SelectItem>
@@ -165,6 +211,7 @@ export default function TransactionForm({ open, onClose, onSubmit, initialData }
           {/* Date */}
           <div className="space-y-1.5">
             <Label htmlFor="date">Date</Label>
+
             <Input
               id="date"
               type="date"
@@ -177,6 +224,7 @@ export default function TransactionForm({ open, onClose, onSubmit, initialData }
           {/* Notes */}
           <div className="space-y-1.5">
             <Label htmlFor="notes">Notes (optional)</Label>
+
             <Textarea
               id="notes"
               placeholder="Add any additional notes..."
@@ -186,14 +234,25 @@ export default function TransactionForm({ open, onClose, onSubmit, initialData }
             />
           </div>
 
+          {/* Footer Buttons */}
           <DialogFooter className="gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+            >
               Cancel
             </Button>
+
             <Button
               type="submit"
               variant="gradient"
-              disabled={loading || !form.title || !form.amount || !form.category}
+              disabled={
+                loading ||
+                !form.title ||
+                !form.amount ||
+                !form.category
+              }
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -203,7 +262,10 @@ export default function TransactionForm({ open, onClose, onSubmit, initialData }
               ) : (
                 <span className="flex items-center gap-2">
                   <PlusCircle className="h-4 w-4" />
-                  {isEdit ? 'Save Changes' : 'Add Transaction'}
+
+                  {isEdit
+                    ? 'Save Changes'
+                    : 'Add Transaction'}
                 </span>
               )}
             </Button>

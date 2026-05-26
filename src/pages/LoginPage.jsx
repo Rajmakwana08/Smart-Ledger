@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Wallet, ArrowRight } from 'lucide-react'
@@ -7,6 +7,26 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
+
+function setCookie(name, value, days) {
+  const date = new Date()
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000))
+  const expires = 'expires=' + date.toUTCString()
+  document.cookie = name + '=' + encodeURIComponent(value) + ';' + expires + ';path=/'
+}
+
+function getCookie(name) {
+  const nameEQ = name + '='
+  const ca = document.cookie.split(';')
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i]
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length)
+    if (c.indexOf(nameEQ) === 0) {
+      return decodeURIComponent(c.substring(nameEQ.length, c.length))
+    }
+  }
+  return null
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -17,11 +37,19 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const { toast } = useToast()
 
+  useEffect(() => {
+    const savedEmail = getCookie('userEmail')
+    if (savedEmail) {
+      setEmail(savedEmail)
+    }
+  }, [])
+
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
     try {
       await signIn(email, password)
+      setCookie('userEmail', email, 30)
       navigate('/dashboard')
       toast({ title: 'Welcome back!', description: 'You have successfully signed in.' })
     } catch (err) {
@@ -57,18 +85,7 @@ export default function LoginPage() {
             Your intelligent financial companion. Track, analyze, and grow your wealth.
           </p>
 
-          <div className="mt-12 grid grid-cols-3 gap-6">
-            {[
-              { label: 'Users', value: '10K+' },
-              { label: 'Transactions', value: '1M+' },
-              { label: 'Saved', value: '$2M+' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-white/60 text-sm">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+          
         </motion.div>
       </div>
 
@@ -160,12 +177,12 @@ export default function LoginPage() {
             </Link>
           </p>
 
-          {/* Demo hint */}
+          {/* Demo hint 
           <div className="mt-6 p-4 rounded-xl bg-muted/50 border border-dashed">
             <p className="text-xs text-muted-foreground text-center">
               <span className="font-semibold">Demo:</span> Create an account to get started, or connect your Supabase project.
             </p>
-          </div>
+          </div>*/}
         </motion.div>
       </div>
     </div>
