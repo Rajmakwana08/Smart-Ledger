@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
 import {
   ArrowRight,
-  Store,
+  Wallet,
+  FileText,
 } from 'lucide-react'
 
 import { useNavigate } from 'react-router-dom'
@@ -13,8 +14,6 @@ import {
   formatCurrency,
   formatDate,
 } from '@/lib/utils'
-
-import { getCategoryById } from '@/utils/categories'
 
 export default function RecentTransactions({
   transactions,
@@ -70,18 +69,31 @@ export default function RecentTransactions({
         {transactions.slice(0, 6).map((transaction, i) => {
 
           // Get category
-          let category = getCategoryById(
-            transaction.category
-          )
+          let category
 
-          // Custom SHOP category support
-          if (transaction.category === 'shop') {
+          if (transaction.category === 'cash') {
             category = {
-              id: 'shop',
-              label: 'Shop',
-              icon: Store,
-              bg: 'bg-violet-100 dark:bg-violet-900/30',
-              text: 'text-violet-600 dark:text-violet-400',
+              id: 'cash',
+              label: 'Cash',
+              icon: Wallet,
+              bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+              text: 'text-emerald-600 dark:text-emerald-400',
+            }
+          } else if (transaction.category === 'check') {
+            category = {
+              id: 'check',
+              label: 'Check',
+              icon: FileText,
+              bg: 'bg-blue-100 dark:bg-blue-900/30',
+              text: 'text-blue-600 dark:text-blue-400',
+            }
+          } else {
+            category = {
+              id: transaction.category,
+              label: transaction.category.charAt(0).toUpperCase() + transaction.category.slice(1),
+              icon: Wallet,
+              bg: 'bg-gray-100 dark:bg-gray-900/30',
+              text: 'text-gray-600 dark:text-gray-400',
             }
           }
 

@@ -242,11 +242,14 @@ export default function TransactionsPage() {
                     <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden sm:table-cell">
                       Date
                     </th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden lg:table-cell">
-                      Type
+                    <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Income
                     </th>
                     <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      Amount
+                      Expense
+                    </th>
+                    <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Total Balance
                     </th>
                     <th className="py-3 px-4 w-12" />
                   </tr>
@@ -256,6 +259,7 @@ export default function TransactionsPage() {
                     <TransactionRow
                       key={transaction.id}
                       transaction={transaction}
+                      transactions={filtered}
                       onEdit={handleEdit}
                       onDelete={removeTransaction}
                       index={i}

@@ -4,7 +4,8 @@ import {
   PlusCircle,
   TrendingUp,
   TrendingDown,
-  Store,
+  Wallet,
+  FileText,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -29,7 +30,6 @@ import {
 } from '@/components/ui/dialog'
 
 import { cn, formatDateInput } from '@/lib/utils'
-import { CATEGORIES, getCategoriesForType } from '@/utils/categories'
 
 const defaultForm = {
   type: 'expense',
@@ -39,6 +39,21 @@ const defaultForm = {
   date: formatDateInput(new Date()),
   notes: '',
 }
+
+const categories = [
+  {
+    id: 'cash',
+    label: 'Cash',
+    icon: Wallet,
+    color: '#10b981',
+  },
+  {
+    id: 'check',
+    label: 'Check',
+    icon: FileText,
+    color: '#3b82f6',
+  },
+]
 
 export default function TransactionForm({
   open,
@@ -54,11 +69,6 @@ export default function TransactionForm({
   function handleChange(field, value) {
     setForm((prev) => {
       const updated = { ...prev, [field]: value }
-
-      // Reset category when type changes
-      if (field === 'type') {
-        updated.category = ''
-      }
 
       return updated
     })
@@ -85,23 +95,6 @@ export default function TransactionForm({
     } finally {
       setLoading(false)
     }
-  }
-
-  // Get categories based on type
-  let categories = getCategoriesForType(form.type)
-
-  // Add SHOP category inside income
-  if (form.type === 'income') {
-    categories = [
-      
-      {
-        id: 'shop',
-        label: 'Shop',
-        icon: Store,
-        color: '#8b5cf6',
-      },
-      ...categories,
-    ]
   }
 
   return (
