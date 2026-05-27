@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
   Select,
@@ -19,6 +20,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
 import TransactionRow from '@/components/transactions/TransactionRow'
 import TransactionForm from '@/components/transactions/TransactionForm'
 import { useTransactions } from '@/hooks/useTransactions'
@@ -28,6 +36,8 @@ import { formatDateInput } from '@/lib/utils'
 
 export default function TransactionsPage() {
   const [formOpen, setFormOpen] = useState(false)
+  const [pdfDialogOpen, setPdfDialogOpen] = useState(false)
+  const [pdfTitle, setPdfTitle] = useState('')
   const [editingTransaction, setEditingTransaction] = useState(null)
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('all')
@@ -110,7 +120,7 @@ export default function TransactionsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => exportToPDF(filtered, stats)}
+            onClick={() => setPdfDialogOpen(true)}
             className="gap-2"
           >
             <FileText className="h-4 w-4" />
@@ -279,6 +289,49 @@ export default function TransactionsPage() {
         onSubmit={handleSubmit}
         initialData={editingTransaction}
       />
+
+      {/* PDF Title Dialog */}
+      <Dialog open={pdfDialogOpen} onOpenChange={setPdfDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Download PDF</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="pdfTitle">Report Title</Label>
+              <Input
+                id="pdfTitle"
+                placeholder="e.g. Monthly Transactions"
+                value={pdfTitle}
+                onChange={(e) => setPdfTitle(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setPdfDialogOpen(false)
+                setPdfTitle('')
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="gradient"
+              onClick={() => {
+                exportToPDF(filtered, stats, pdfTitle || 'Financial Report')
+                setPdfDialogOpen(false)
+                setPdfTitle('')
+              }}
+            >
+              Download PDF
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
