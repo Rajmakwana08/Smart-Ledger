@@ -9,11 +9,14 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Sign out any existing session on load
-    supabase.auth.signOut().then(() => {
-      setUser(null)
-      setProfile(null)
-      setLoading(false)
+    // Get initial session (but since persistSession is false, this will usually be null)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        fetchProfile(session.user.id)
+      } else {
+        setLoading(false)
+      }
     })
 
     // Listen for auth changes
