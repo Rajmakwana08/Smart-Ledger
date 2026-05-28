@@ -36,7 +36,7 @@ import {
 
 export default function TransactionRow({
   transaction,
-  transactions = [],
+  balance,
   onEdit,
   onDelete,
   index,
@@ -79,29 +79,6 @@ export default function TransactionRow({
   }
 
   const Icon = category.icon
-
-  // =========================
-  // RUNNING BALANCE
-  // =========================
-
-  const sortedTransactions = [...transactions].sort((a, b) => 
-    new Date(a.date) - new Date(b.date)
-  )
-
-  const currentIndex = sortedTransactions.findIndex(
-    (t) => t.id === transaction.id
-  )
-
-  const previousTransactions =
-    sortedTransactions.slice(0, currentIndex + 1)
-
-  const balance = previousTransactions.reduce(
-    (sum, t) =>
-      t.type === 'income'
-        ? sum + t.amount
-        : sum - t.amount,
-    0
-  )
 
   return (
     <>

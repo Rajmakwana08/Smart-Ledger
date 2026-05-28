@@ -63,9 +63,9 @@ export default function TransactionsPage() {
   const { transactions, loading, stats, addTransaction, editTransaction, removeTransaction } =
     useTransactions()
 
-  // Client-side filtering
-  const filtered = useMemo(() => {
-    return transactions.filter((t) => {
+  // Client-side filtering, sorting, and balance calculation
+  const { filtered, transactionBalances } = useMemo(() => {
+    const filteredTransactions = transactions.filter((t) => {
       if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false
       if (typeFilter !== 'all' && t.type !== typeFilter) return false
       if (categoryFilter !== 'all' && t.category !== categoryFilter) return false
@@ -73,6 +73,38 @@ export default function TransactionsPage() {
       if (endDate && t.date > endDate) return false
       return true
     })
+    
+    // Sort oldest first to calculate running balance
+    const sortedAsc = [...filteredTransactions].sort((a, b) => {
+      const dateDiff = new Date(a.date) - new Date(b.date)
+      if (dateDiff !== 0) return dateDiff
+      
+      // If dates are same, sort by entry order (oldest entry first, since useTransactions adds new to beginning)
+      return transactions.indexOf(a) - transactions.indexOf(b)
+    })
+    
+    // Calculate running balance
+    let balance = 0
+    const balanceMap = {}
+    sortedAsc.forEach(t => {
+      if (t.type === 'income') {
+        balance += t.amount
+      } else {
+        balance -= t.amount
+      }
+      balanceMap[t.id] = balance
+    })
+    
+    // Sort newest first for display
+    const sortedDesc = [...filteredTransactions].sort((a, b) => {
+      const dateDiff = new Date(b.date) - new Date(a.date)
+      if (dateDiff !== 0) return dateDiff
+      
+      // If dates are same, sort oldest entry first (bottom to top in same-day group)
+      return transactions.indexOf(b) - transactions.indexOf(a)
+    })
+    
+    return { filtered: sortedDesc, transactionBalances: balanceMap }
   }, [transactions, search, typeFilter, categoryFilter, startDate, endDate])
 
   function handleEdit(transaction) {
@@ -352,7 +384,7 @@ export default function TransactionsPage() {
                     <TransactionRow
                       key={transaction.id}
                       transaction={transaction}
-                      transactions={filtered}
+                      balance={transactionBalances[transaction.id]}
                       onEdit={handleEdit}
                       onDelete={removeTransaction}
                       index={i}
