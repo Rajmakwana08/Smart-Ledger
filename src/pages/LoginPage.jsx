@@ -33,7 +33,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { signIn } = useAuth()
+  const { signIn, user } = useAuth()
   const navigate = useNavigate()
   const { toast } = useToast()
 
@@ -44,13 +44,19 @@ export default function LoginPage() {
     }
   }, [])
 
+  useEffect(() => {
+    if (user) {
+      navigate('/transactions', { replace: true })
+    }
+  }, [user, navigate])
+
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
     try {
       await signIn(email, password)
       setCookie('userEmail', email, 30)
-      navigate('/dashboard')
+      navigate('/transactions')
       toast({ title: 'Welcome back!', description: 'You have successfully signed in.' })
     } catch (err) {
       toast({

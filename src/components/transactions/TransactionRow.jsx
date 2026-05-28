@@ -31,7 +31,7 @@ import {
 
 import {
   formatCurrency,
-  formatDate,
+  formatDateNumeric,
 } from '@/lib/utils'
 
 export default function TransactionRow({
@@ -81,12 +81,16 @@ export default function TransactionRow({
   // RUNNING BALANCE
   // =========================
 
-  const currentIndex = transactions.findIndex(
+  const sortedTransactions = [...transactions].sort((a, b) => 
+    new Date(a.date) - new Date(b.date)
+  )
+
+  const currentIndex = sortedTransactions.findIndex(
     (t) => t.id === transaction.id
   )
 
   const previousTransactions =
-    transactions.slice(0, currentIndex + 1)
+    sortedTransactions.slice(0, currentIndex + 1)
 
   const balance = previousTransactions.reduce(
     (sum, t) =>
@@ -161,7 +165,7 @@ export default function TransactionRow({
         {/* ========================= */}
 
         <td className="py-3 px-4 hidden sm:table-cell text-sm text-muted-foreground">
-          {formatDate(transaction.date)}
+          {formatDateNumeric(transaction.date)}
         </td>
 
         {/* ========================= */}

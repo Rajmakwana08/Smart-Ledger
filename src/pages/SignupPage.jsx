@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Wallet, ArrowRight, CheckCircle2 } from 'lucide-react'
@@ -19,9 +19,15 @@ export default function SignupPage() {
   const [form, setForm] = useState({ fullName: '', email: '', password: '', confirm: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { signUp } = useAuth()
+  const { signUp, user } = useAuth()
   const navigate = useNavigate()
   const { toast } = useToast()
+
+  useEffect(() => {
+    if (user) {
+      navigate('/transactions', { replace: true })
+    }
+  }, [user, navigate])
 
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -45,7 +51,7 @@ export default function SignupPage() {
         title: 'Account created!',
         description: 'Check your email to confirm your account.',
       })
-      navigate('/dashboard')
+      navigate('/transactions')
     } catch (err) {
       toast({
         title: 'Sign up failed',

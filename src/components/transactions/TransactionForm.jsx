@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+
 import {
   PlusCircle,
   TrendingUp,
   TrendingDown,
   Wallet,
   FileText,
+  Landmark,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -47,11 +49,20 @@ const categories = [
     icon: Wallet,
     color: '#10b981',
   },
+
   {
     id: 'check',
     label: 'Check',
     icon: FileText,
     color: '#3b82f6',
+  },
+
+  // NEW NEFT CATEGORY
+  {
+    id: 'neft',
+    label: 'NEFT',
+    icon: Landmark,
+    color: '#8b5cf6',
   },
 ]
 
@@ -61,27 +72,45 @@ export default function TransactionForm({
   onSubmit,
   initialData,
 }) {
-  const [form, setForm] = useState(initialData || defaultForm)
-  const [loading, setLoading] = useState(false)
+
+  const [form, setForm] =
+    useState(initialData || defaultForm)
+
+  const [loading, setLoading] =
+    useState(false)
 
   const isEdit = !!initialData
 
   function handleChange(field, value) {
+
     setForm((prev) => {
-      const updated = { ...prev, [field]: value }
+
+      const updated = {
+        ...prev,
+        [field]: value,
+      }
 
       return updated
     })
   }
 
   async function handleSubmit(e) {
+
     e.preventDefault()
 
-    if (!form.title || !form.amount || !form.category || !form.date) return
+    if (
+      !form.title ||
+      !form.amount ||
+      !form.category ||
+      !form.date
+    ) {
+      return
+    }
 
     setLoading(true)
 
     try {
+
       await onSubmit({
         ...form,
         amount: parseFloat(form.amount),
@@ -92,31 +121,50 @@ export default function TransactionForm({
       }
 
       onClose()
+
     } finally {
+
       setLoading(false)
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog
+      open={open}
+      onOpenChange={onClose}
+    >
+
       <DialogContent className="sm:max-w-md">
+
         <DialogHeader>
+
           <DialogTitle className="text-xl">
-            {isEdit ? 'Edit Transaction' : 'Add Transaction'}
+            {isEdit
+              ? 'Edit Transaction'
+              : 'Add Transaction'}
           </DialogTitle>
+
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
 
-          {/* Type Toggle */}
+          {/* TYPE TOGGLE */}
           <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl">
+
             {['expense', 'income'].map((type) => (
+
               <button
                 key={type}
                 type="button"
-                onClick={() => handleChange('type', type)}
+                onClick={() =>
+                  handleChange('type', type)
+                }
                 className={cn(
                   'flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all',
+
                   form.type === type
                     ? type === 'expense'
                       ? 'bg-rose-500 text-white shadow-md'
@@ -124,35 +172,51 @@ export default function TransactionForm({
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
+
                 {type === 'expense' ? (
                   <TrendingDown className="h-4 w-4" />
                 ) : (
                   <TrendingUp className="h-4 w-4" />
                 )}
 
-                {type.charAt(0).toUpperCase() + type.slice(1)}
+                {type.charAt(0).toUpperCase() +
+                  type.slice(1)}
+
               </button>
             ))}
           </div>
 
-          {/* Title */}
+          {/* TITLE */}
           <div className="space-y-1.5">
-            <Label htmlFor="title">Title</Label>
+
+            <Label htmlFor="title">
+              Title
+            </Label>
 
             <Input
               id="title"
               placeholder="e.g. Grocery shopping"
               value={form.title}
-              onChange={(e) => handleChange('title', e.target.value)}
+              onChange={(e) =>
+                handleChange(
+                  'title',
+                  e.target.value
+                )
+              }
               required
             />
+
           </div>
 
-          {/* Amount */}
+          {/* AMOUNT */}
           <div className="space-y-1.5">
-            <Label htmlFor="amount">Amount</Label>
+
+            <Label htmlFor="amount">
+              Amount
+            </Label>
 
             <div className="relative">
+
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
                 ₹
               </span>
@@ -165,70 +229,115 @@ export default function TransactionForm({
                 placeholder="0.00"
                 className="pl-7"
                 value={form.amount}
-                onChange={(e) => handleChange('amount', e.target.value)}
+                onChange={(e) =>
+                  handleChange(
+                    'amount',
+                    e.target.value
+                  )
+                }
                 required
               />
+
             </div>
           </div>
 
-          {/* Category */}
+          {/* CATEGORY */}
           <div className="space-y-1.5">
-            <Label>Category</Label>
+
+            <Label>
+              Category
+            </Label>
 
             <Select
               value={form.category}
-              onValueChange={(val) => handleChange('category', val)}
+              onValueChange={(val) =>
+                handleChange(
+                  'category',
+                  val
+                )
+              }
               required
             >
+
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
 
               <SelectContent>
+
                 {categories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
+
+                  <SelectItem
+                    key={cat.id}
+                    value={cat.id}
+                  >
+
                     <div className="flex items-center gap-2">
+
                       <cat.icon
                         className="h-4 w-4"
-                        style={{ color: cat.color }}
+                        style={{
+                          color: cat.color,
+                        }}
                       />
 
                       {cat.label}
+
                     </div>
                   </SelectItem>
                 ))}
+
               </SelectContent>
             </Select>
           </div>
 
-          {/* Date */}
+          {/* DATE */}
           <div className="space-y-1.5">
-            <Label htmlFor="date">Date</Label>
+
+            <Label htmlFor="date">
+              Date
+            </Label>
 
             <Input
               id="date"
               type="date"
               value={form.date}
-              onChange={(e) => handleChange('date', e.target.value)}
+              onChange={(e) =>
+                handleChange(
+                  'date',
+                  e.target.value
+                )
+              }
               required
             />
+
           </div>
 
-          {/* Notes */}
+          {/* NOTES */}
           <div className="space-y-1.5">
-            <Label htmlFor="notes">Notes (optional)</Label>
+
+            <Label htmlFor="notes">
+              Notes (optional)
+            </Label>
 
             <Textarea
               id="notes"
               placeholder="Add any additional notes..."
               value={form.notes}
-              onChange={(e) => handleChange('notes', e.target.value)}
+              onChange={(e) =>
+                handleChange(
+                  'notes',
+                  e.target.value
+                )
+              }
               rows={2}
             />
+
           </div>
 
-          {/* Footer Buttons */}
+          {/* FOOTER BUTTONS */}
           <DialogFooter className="gap-2 pt-2">
+
             <Button
               type="button"
               variant="outline"
@@ -247,21 +356,31 @@ export default function TransactionForm({
                 !form.category
               }
             >
+
               {loading ? (
+
                 <span className="flex items-center gap-2">
+
                   <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+
                   Saving...
+
                 </span>
+
               ) : (
+
                 <span className="flex items-center gap-2">
+
                   <PlusCircle className="h-4 w-4" />
 
                   {isEdit
                     ? 'Save Changes'
                     : 'Add Transaction'}
+
                 </span>
               )}
             </Button>
+
           </DialogFooter>
         </form>
       </DialogContent>

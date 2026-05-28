@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 import {
   formatCurrency,
-  formatDate,
+  formatDateNumeric,
 } from '@/lib/utils'
 
 export default function RecentTransactions({
@@ -125,7 +125,7 @@ export default function RecentTransactions({
                 </p>
 
                 <p className="text-xs text-muted-foreground">
-                  {formatDate(transaction.date)}
+                  {formatDateNumeric(transaction.date)}
                 </p>
               </div>
 
