@@ -19,25 +19,33 @@ const formatAmount = (value) => {
 
 export function exportToCSV(
   transactions,
+  balanceMap,
   filename = 'transactions'
 ) {
   const headers = [
-    'Date',
-    'Title',
+    'Transaction',
     'Category',
-    'Type',
-    'Amount',
+    'Date',
+    'Income',
+    'Expense',
+    'Total Balance',
     'Notes',
   ]
 
-  const rows = transactions.map((t) => [
-    formatDateNumeric(t.date),
-    t.title,
-    t.category,
-    t.type,
-    t.amount,
-    t.notes || '',
-  ])
+  const rows = transactions.map((t) => {
+    const income = t.type === 'income' ? t.amount : ''
+    const expense = t.type === 'expense' ? t.amount : ''
+    const balance = balanceMap ? balanceMap[t.id] : ''
+    return [
+      t.title,
+      t.category,
+      formatDateNumeric(t.date),
+      income,
+      expense,
+      balance,
+      t.notes || '',
+    ]
+  })
 
   const csvContent = [
     headers.join(','),
@@ -75,6 +83,7 @@ export function exportToCSV(
 
 export function exportToPDF(
   transactions,
+  balanceMap,
   stats,
   title = 'Financial Report',
   filename = 'financial-report'
@@ -184,39 +193,24 @@ export function exportToPDF(
   )
 
   // =========================
-  // RUNNING BALANCE
+  // BUILD TABLE DATA
   // =========================
 
-  let runningBalance = 0
-
   const tableData = transactions.map((t) => {
-
-    if (t.type === 'income') {
-      runningBalance += t.amount
-    } else {
-      runningBalance -= t.amount
-    }
-
     return [
-      formatDateNumeric(t.date),
-
       t.title,
-
       t.category
         ? t.category.charAt(0).toUpperCase() +
           t.category.slice(1)
         : '-',
-
+      formatDateNumeric(t.date),
       t.type === 'income'
         ? formatAmount(t.amount)
         : '-',
-
       t.type === 'expense'
         ? formatAmount(t.amount)
         : '-',
-
-      formatAmount(runningBalance),
-
+      formatAmount(balanceMap[t.id]),
       t.notes || '-',
     ]
   })
@@ -229,12 +223,12 @@ export function exportToPDF(
     startY: tableStartY + 6,
 
     head: [[
-      'Date',
-      'Title',
+      'Transaction',
       'Category',
+      'Date',
       'Income',
       'Expense',
-      'Balance',
+      'Total Balance',
       'Notes',
     ]],
 

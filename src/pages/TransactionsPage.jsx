@@ -214,7 +214,7 @@ export default function TransactionsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => exportToCSV(filtered)}
+                onClick={() => exportToCSV(filtered, transactionBalances)}
                 className="gap-2"
               >
                 <Download className="h-4 w-4" />
@@ -440,7 +440,7 @@ export default function TransactionsPage() {
               type="button"
               variant="gradient"
               onClick={() => {
-                exportToPDF(filtered, stats, pdfTitle || 'Financial Report')
+                exportToPDF(filtered, transactionBalances, stats, pdfTitle || 'Financial Report')
                 setPdfDialogOpen(false)
                 setPdfTitle('')
               }}
