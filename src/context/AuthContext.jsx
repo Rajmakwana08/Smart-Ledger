@@ -68,7 +68,7 @@ export function AuthProvider({ children }) {
         full_name: fullName,
         email,
         avatar_url: null,
-        currency: 'USD',
+        currency: 'INR',
       })
     }
     return data

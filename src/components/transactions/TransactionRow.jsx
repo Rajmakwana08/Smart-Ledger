@@ -40,6 +40,9 @@ export default function TransactionRow({
   onEdit,
   onDelete,
   index,
+  isSelectionMode,
+  isSelected,
+  onToggleSelect,
 }) {
   const [deleteOpen, setDeleteOpen] = useState(false)
 
@@ -106,8 +109,23 @@ export default function TransactionRow({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.03 }}
-        className="border-b last:border-0 hover:bg-muted/30 transition-colors group"
+        className={`border-b last:border-0 hover:bg-muted/30 transition-colors group ${isSelected ? 'bg-muted/50' : ''}`}
       >
+
+        {/* ========================= */}
+        {/* SELECT CHECKBOX */}
+        {/* ========================= */}
+
+        {isSelectionMode && (
+          <td className="py-3 px-4">
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={onToggleSelect}
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+          </td>
+        )}
 
         {/* ========================= */}
         {/* TRANSACTION */}

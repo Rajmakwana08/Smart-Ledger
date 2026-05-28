@@ -7,6 +7,7 @@ import {
   Download,
   FileText,
   SlidersHorizontal,
+  Trash2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,6 +28,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import TransactionRow from '@/components/transactions/TransactionRow'
 import TransactionForm from '@/components/transactions/TransactionForm'
 import { useTransactions } from '@/hooks/useTransactions'
@@ -45,6 +56,9 @@ export default function TransactionsPage() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+  const [isSelectionMode, setIsSelectionMode] = useState(false)
+  const [selectedTransactionIds, setSelectedTransactionIds] = useState([])
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
 
   const { transactions, loading, stats, addTransaction, editTransaction, removeTransaction } =
     useTransactions()
@@ -93,6 +107,28 @@ export default function TransactionsPage() {
   const hasActiveFilters =
     search || typeFilter !== 'all' || categoryFilter !== 'all' || startDate || endDate
 
+  function toggleTransactionSelection(id) {
+    setSelectedTransactionIds((prev) =>
+      prev.includes(id) ? prev.filter((tid) => tid !== id) : [...prev, id]
+    )
+  }
+
+  function toggleSelectAll() {
+    if (selectedTransactionIds.length === filtered.length) {
+      setSelectedTransactionIds([])
+    } else {
+      setSelectedTransactionIds(filtered.map((t) => t.id))
+    }
+  }
+
+  async function handleBulkDelete() {
+    for (const id of selectedTransactionIds) {
+      await removeTransaction(id)
+    }
+    setSelectedTransactionIds([])
+    setBulkDeleteOpen(false)
+  }
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
@@ -104,32 +140,69 @@ export default function TransactionsPage() {
         <div>
           <h1 className="text-2xl font-bold">Transactions</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {filtered.length} of {transactions.length} transactions
+            {selectedTransactionIds.length > 0 
+              ? `${selectedTransactionIds.length} selected` 
+              : `${filtered.length} of ${transactions.length} transactions`}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => exportToCSV(filtered)}
-            className="gap-2"
-          >
-            <Download className="h-4 w-4" />
-            CSV
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPdfDialogOpen(true)}
-            className="gap-2"
-          >
-            <FileText className="h-4 w-4" />
-            PDF
-          </Button>
-          <Button variant="gradient" onClick={() => setFormOpen(true)} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add
-          </Button>
+          {isSelectionMode ? (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setIsSelectionMode(false)
+                  setSelectedTransactionIds([])
+                }}
+              >
+                Cancel
+              </Button>
+              {selectedTransactionIds.length > 0 && (
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={() => setBulkDeleteOpen(true)} 
+                  className="gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete Selected ({selectedTransactionIds.length})
+                </Button>
+              )}
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsSelectionMode(true)}
+              >
+                Select
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => exportToCSV(filtered)}
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPdfDialogOpen(true)}
+                className="gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                PDF
+              </Button>
+              <Button variant="gradient" onClick={() => setFormOpen(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add
+              </Button>
+            </>
+          )}
         </div>
       </motion.div>
 
@@ -243,6 +316,16 @@ export default function TransactionsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b bg-muted/30">
+                    {isSelectionMode && (
+                      <th className="py-3 px-4 w-12">
+                        <input
+                          type="checkbox"
+                          checked={filtered.length > 0 && selectedTransactionIds.length === filtered.length}
+                          onChange={toggleSelectAll}
+                          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        />
+                      </th>
+                    )}
                     <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       Transaction
                     </th>
@@ -273,6 +356,9 @@ export default function TransactionsPage() {
                       onEdit={handleEdit}
                       onDelete={removeTransaction}
                       index={i}
+                      isSelectionMode={isSelectionMode}
+                      isSelected={selectedTransactionIds.includes(transaction.id)}
+                      onToggleSelect={() => toggleTransactionSelection(transaction.id)}
                     />
                   ))}
                 </tbody>
@@ -332,6 +418,35 @@ export default function TransactionsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Delete Confirmation */}
+      <AlertDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Delete {selectedTransactionIds.length} Transactions
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete these {selectedTransactionIds.length} transactions?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBulkDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete All
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
